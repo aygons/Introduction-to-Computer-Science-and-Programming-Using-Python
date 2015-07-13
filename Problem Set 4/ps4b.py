@@ -19,33 +19,51 @@ def compChooseWord(hand, wordList, n):
 
     hand: dictionary (string -> int)
     wordList: list (string)
-    n: integer (HAND_SIZE; i.e., hand size required for additional points)
-
     returns: string or None
     """
-    # BEGIN PSEUDOCODE <-- Remove this comment when you code this function; do your coding within the pseudocode (leaving those comments in-place!)
-    # Create a new variable to store the maximum score seen so far (initially 0)
 
-    # Create a new variable to store the best word seen so far (initially None)  
+    # Create a new variable to store the maximum score seen so far (initially 0)
+    best_score = 0
+
+    # Create a new variable to store the best word seen so far (initially None)
+    best_word = None  
 
     # For each word in the wordList
+    for word in wordList:
 
         # If you can construct the word from your hand
         # (hint: you can use isValidWord, or - since you don't really need to test if the word is in the wordList - you can make a similar function that omits that test)
-
+        if isValidWord(word,hand,wordList):
             # Find out how much making that word is worth
-
+            this_score = getWordScore(word,n)
             # If the score for that word is higher than your best score
-
+            if this_score > best_score:
                 # Update your best score, and best word accordingly
-
+                best_score = this_score
+                best_word = word
 
     # return the best word you found.
+    return best_word
 
 
 #
 # Problem #7: Computer plays a hand
 #
+
+def displayHand2(hand):
+    """
+    Displays the letters currently in the hand.
+    For example:
+    >>> displayHand({'a':1, 'x':2, 'l':3, 'e':1})
+    Should print out something like:
+       a x x l l l e
+    The order of the letters is unimportant.
+    hand: dictionary (string -> int)
+    """
+    for letter in hand.keys():
+        for j in range(hand[letter]):
+             print letter, 
+
 def compPlayHand(hand, wordList, n):
     """
     Allows the computer to play the given hand, following the same procedure
@@ -65,7 +83,20 @@ def compPlayHand(hand, wordList, n):
     wordList: list (string)
     n: integer (HAND_SIZE; i.e., hand size required for additional points)
     """
-    # TO DO ... <-- Remove this comment when you code this function
+    score = 0
+    word = compChooseWord(hand, wordList, n)
+
+    while word is not None:
+        print "Current Hand: ",displayHand2(hand)
+        score += getWordScore(word, n)
+        print "'"+word+"'","earned %d points. Total: %d points" %(getWordScore(word, n),score)
+        hand = updateHand(hand, word)
+        word = compChooseWord(hand, wordList, n)
+
+    if calculateHandlen(hand) != 0:
+        print "Current Hand: ",displayHand2(hand)
+        
+    print "Total score: %d points." %score   
     
 #
 # Problem #8: Playing a game
@@ -95,8 +126,40 @@ def playGame(wordList):
 
     wordList: list (string)
     """
-    # TO DO... <-- Remove this comment when you code this function
-    print "playGame not yet implemented." # <-- Remove this when you code this function
+    hand = None
+    game_type = raw_input("Enter n to deal a new hand, r to replay the last hand, or e to end game: ")
+    
+    while game_type != 'e':
+        if game_type == 'n':
+            hand = dealHand(HAND_SIZE)
+            who = raw_input("Enter u to have yourself play, c to have the computer play: ")
+            while who not in ['u','c']:
+                print 'Invalid command.'
+                who = raw_input("Enter u to have yourself play, c to have the computer play: ")
+            if who =='u':
+                playHand(hand, wordList, HAND_SIZE)  
+            elif who == 'c':
+                compPlayHand(hand, wordList, HAND_SIZE)
+            
+        elif game_type == 'r':
+            if hand is None:
+                print "You have not played a hand yet. Please play a new hand first!\n"
+            else:
+                who = raw_input("Enter u to have yourself play, c to have the computer play: ")
+                while who not in ['u','c']:
+                    print 'Invalid command.'
+                    who = raw_input("Enter u to have yourself play, c to have the computer play: ")
+                if who =='u':
+                    playHand(hand, wordList, HAND_SIZE)  
+                elif who == 'c':
+                    compPlayHand(hand, wordList, HAND_SIZE)
+                else:
+                    print 'Invalid command.'    
+        else:
+            print "Invalid command."
+        
+        game_type = raw_input("Enter n to deal a new hand, r to replay the last hand, or e to end game: ")     
+        
 
         
 #
